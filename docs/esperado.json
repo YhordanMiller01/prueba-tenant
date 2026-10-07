@@ -1,0 +1,43 @@
+{
+  "_leeme": "Resultado correcto esperado de cada agente de sq_ai al correr un ciclo contra este repo (estado actual de main + esta rama). Sirve de oráculo para --verify y para los golden datasets. 'base' dice de dónde sale cada afirmación: 'codigo' = comprobado ejecutando el SUT; 'historias' = docs/historias.md; 'observado' = visto en un ciclo real (no garantizado); 'criterio' = decisión de diseño de este archivo.",
+  "sut": {
+    "servicio": "tasks-api",
+    "puerto": 4010,
+    "contrato": "tasks-api/openapi.json",
+    "endpoints_total": 6,
+    "estado": "en memoria, sin semilla ni reset: el contenido de GET /tasks depende de lo creado antes"
+  },
+  "requisitos": [
+    {"id": "HU-1/AC-1", "peticion": "POST /tasks {\"title\":\"Comprar pan\"}", "estado": 201, "cuerpo": "id entero, title igual al enviado, done=false", "base": "codigo"},
+    {"id": "HU-1/AC-2", "peticion": "POST /tasks {\"title\":\"\"}", "estado": 422, "base": "codigo"},
+    {"id": "HU-1/AC-3", "peticion": "POST /tasks con title de 100 caracteres / de 101", "estado": "201 / 422", "base": "codigo"},
+    {"id": "HU-2/AC-1", "peticion": "GET /tasks", "estado": 200, "cuerpo": "lista (puede estar vacía)", "base": "codigo"},
+    {"id": "HU-2/AC-2", "peticion": "GET /tasks/{id} de una tarea creada", "estado": 200, "cuerpo": "la misma tarea", "base": "codigo"},
+    {"id": "HU-2/AC-3", "peticion": "GET /tasks/99999", "estado": 404, "base": "codigo"},
+    {"id": "HU-3/AC-1", "peticion": "PATCH /tasks/{id} {\"done\":true}", "estado": 200, "cuerpo": "done=true", "base": "codigo"},
+    {"id": "HU-3/AC-2", "peticion": "PATCH /tasks/99999 {\"done\":true}", "estado": 404, "base": "codigo"},
+    {"id": "HU-4/AC-1", "peticion": "DELETE /tasks/{id}; luego GET /tasks/{id}", "estado": "204; luego 404", "base": "codigo"},
+    {"id": "HU-4/AC-2", "peticion": "DELETE /tasks/99999", "estado": 404, "base": "codigo"}
+  ],
+  "huecos_conocidos_del_sut": [
+    "POST /tasks con title de solo espacios responde 201 (HU-1/AC-2 solo habla de título vacío)",
+    "POST /tasks acepta done=true (HU-1/AC-1 asume done=false)",
+    "PATCH /tasks/{id} con {} responde 200 sin cambiar nada",
+    "Las historias no cubren ids no numéricos (422) ni PATCH con title vacío (422)"
+  ],
+  "agentes": {
+    "F0.1": {"salida": "mapa con 6 endpoints, módulos de API 'health' y 'tasks', dependency_edges vacío, sin cambio de arquitectura; HITL initial_system_map_review (primer mapa)", "base": "codigo + observado (módulos health/tasks, 2026-10-07)"},
+    "F1.3": {"salida": "una condición por AC (los 10 ids de 'requisitos'), todas cubiertas, sin ambigüedades críticas", "base": "historias"},
+    "F1.4": {"salida": "risk_map con 'tasks' por encima de 'health' (más endpoints y de escritura); sin skips seguros de módulos críticos", "base": "criterio (no hay historial ni PR: el riesgo por cambios es 0)"},
+    "F1.5": {"salida": "datasets para POST y PATCH /tasks con title de 1 a 100 caracteres; sin PII", "base": "codigo"},
+    "F1.6": {"salida": "al menos un caso por AC; los AC de 422/404 son negativos; todos 'automated' (todo se verifica por API)", "base": "historias + criterio", "alerta": "el ciclo del 2026-10-07 produjo 7 casos manuales: con este SUT no deberían existir, revisar la clasificación"},
+    "F1.7": {"salida": "pass_rate 1.0 con el SUT sin defectos; ningún 404 en POST /tasks; sin infrastructure_failure", "base": "codigo", "alerta": "el ciclo del 2026-10-07 dio 6 de 7 y 404 en POST: son errores del plan o de la URL base, no del SUT"},
+    "F2.1": {"salida": "omite todos los casos (no hay UI) o se deja apagado", "base": "codigo"},
+    "F2.1b": {"salida": "0 casos asignados mientras F1.6 no clasifique ninguno como manual", "base": "criterio"},
+    "F2.2": {"salida": "defects_total 0 con el SUT sin defectos: cualquier defecto registrado es un falso positivo del plan de pruebas", "base": "codigo"},
+    "F2.3": {"salida": "3 reportes (ejecutivo, técnico, dataset Power BI) con la decisión de F1.2", "base": "criterio"},
+    "F2.4": {"salida": "10 requisitos, reqs_without_tests 0, orphan_test_cases 0, coverage_pct 100", "base": "historias"},
+    "F2.5": {"salida": "status no_apm_configured (el SUT no expone métricas)", "base": "codigo"},
+    "F1.2": {"salida": "decisión por calcular: depende de las dimensiones de seguridad y rendimiento, que aquí no se miden", "base": "pendiente de calibrar con un ciclo sin falsos positivos"}
+  }
+}

@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 
 app = FastAPI(title="Tasks API", version="1.0.0")
 
+_NOT_FOUND = {404: {"description": "Task not found"}}
+
 _tasks: dict[int, dict] = {}
 _next_id = 1
 
@@ -43,14 +45,14 @@ def create_task(body: TaskIn) -> dict:
     return task
 
 
-@app.get("/tasks/{task_id}", response_model=Task)
+@app.get("/tasks/{task_id}", response_model=Task, responses=_NOT_FOUND)
 def get_task(task_id: int) -> dict:
     if task_id not in _tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     return _tasks[task_id]
 
 
-@app.patch("/tasks/{task_id}", response_model=Task)
+@app.patch("/tasks/{task_id}", response_model=Task, responses=_NOT_FOUND)
 def update_task(task_id: int, body: TaskPatch) -> dict:
     if task_id not in _tasks:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -58,7 +60,7 @@ def update_task(task_id: int, body: TaskPatch) -> dict:
     return _tasks[task_id]
 
 
-@app.delete("/tasks/{task_id}", status_code=204)
+@app.delete("/tasks/{task_id}", status_code=204, responses=_NOT_FOUND)
 def delete_task(task_id: int) -> Response:
     if task_id not in _tasks:
         raise HTTPException(status_code=404, detail="Task not found")

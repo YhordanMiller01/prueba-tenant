@@ -4,12 +4,14 @@ Repositorio de prueba para el camino feliz de **sq_ai**: una API de tareas peque
 
 ```
 sqai-demo-repo/
-├── docs/historias.md      # 4 historias con criterios de aceptación
+├── docs/historias.md      # 4 historias, 10 criterios de aceptación
+├── docs/esperado.json     # resultado correcto esperado de cada agente de sq_ai
 └── tasks-api/             # servicio (carpeta de primer nivel = servicio para el escaneo de F0.1)
     ├── app/main.py        # FastAPI, 6 endpoints
     ├── openapi.json       # contrato (generado desde la app)
-    ├── requirements.txt   # manifiesto del servicio
-    └── tests/             # 6 pruebas pytest
+    ├── Dockerfile         # imagen del SUT (puerto 4010)
+    ├── requirements.txt   # manifiesto del servicio, versiones fijadas
+    └── tests/             # 11 pruebas pytest
 ```
 
 ## Ejecutar
@@ -18,7 +20,7 @@ sqai-demo-repo/
 cd tasks-api
 python -m venv .venv && . .venv/Scripts/activate   # en Linux/macOS: . .venv/bin/activate
 pip install -r requirements.txt
-python -m pytest -q                      # 6 pruebas
+python -m pytest -q                      # 11 pruebas
 python -m uvicorn app.main:app --port 4010
 ```
 
@@ -31,9 +33,9 @@ Contrato en `http://localhost:4010/openapi.json`.
 | GET | `/health` | 200 |
 | GET | `/tasks` | 200 |
 | POST | `/tasks` | 201, 422 |
-| GET | `/tasks/{id}` | 200, 404 |
+| GET | `/tasks/{id}` | 200, 404, 422 (id no numérico) |
 | PATCH | `/tasks/{id}` | 200, 404, 422 |
-| DELETE | `/tasks/{id}` | 204, 404 |
+| DELETE | `/tasks/{id}` | 204, 404, 422 (id no numérico) |
 
 ## Regenerar `openapi.json`
 
