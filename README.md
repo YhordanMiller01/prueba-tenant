@@ -11,7 +11,7 @@ sqai-demo-repo/
     ├── openapi.json       # contrato (generado desde la app)
     ├── Dockerfile         # imagen del SUT (puerto 4010)
     ├── requirements.txt   # manifiesto del servicio, versiones fijadas
-    └── tests/             # 11 pruebas pytest
+    └── tests/             # 12 pruebas pytest
 ```
 
 ## Ejecutar
@@ -20,7 +20,7 @@ sqai-demo-repo/
 cd tasks-api
 python -m venv .venv && . .venv/Scripts/activate   # en Linux/macOS: . .venv/bin/activate
 pip install -r requirements.txt
-python -m pytest -q                      # 11 pruebas
+python -m pytest -q                      # 12 pruebas
 python -m uvicorn app.main:app --port 4010
 ```
 

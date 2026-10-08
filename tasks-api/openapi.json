@@ -4,6 +4,11 @@
     "title": "Tasks API",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
   "paths": {
     "/health": {
       "get": {

@@ -2,7 +2,8 @@
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="Tasks API", version="1.0.0")
+# `servers` declara la base de las peticiones; sin él, sq_ai usa la URL del propio openapi.json.
+app = FastAPI(title="Tasks API", version="1.0.0", servers=[{"url": "/"}])
 
 _NOT_FOUND = {404: {"description": "Task not found"}}
 

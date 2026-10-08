@@ -62,3 +62,7 @@ def test_el_contrato_declara_los_404():
     paths = app.openapi()["paths"]
     for method in ("get", "patch", "delete"):
         assert "404" in paths["/tasks/{task_id}"][method]["responses"]
+
+
+def test_el_contrato_declara_servers():
+    assert app.openapi()["servers"] == [{"url": "/"}]
